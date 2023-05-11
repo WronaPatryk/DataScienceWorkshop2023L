@@ -7,8 +7,10 @@ from sklearn.metrics import roc_auc_score, accuracy_score, recall_score, confusi
 from sklearn.model_selection import train_test_split
 from sklearn.naive_bayes import GaussianNB, BernoulliNB, ComplementNB, MultinomialNB
 from sklearn.neighbors import KNeighborsClassifier
-from sklearn.ensemble import RandomForestClassifier
-
+from sklearn.ensemble import RandomForestClassifier, GradientBoostingClassifier, AdaBoostClassifier
+from sklearn.linear_model import LogisticRegression
+from sklearn.neural_network import MLPClassifier
+from sklearn.discriminant_analysis import LinearDiscriminantAnalysis
 
 def remove_na_values(df: DataFrame, drop_column_threshold=0.15):
     null_var = df.isnull().sum() / df.shape[0]
@@ -45,10 +47,14 @@ if __name__ == '__main__':
         BernoulliNB(),
         ComplementNB(),
         MultinomialNB(),
-        RandomForestClassifier()
+        RandomForestClassifier(),
+        LogisticRegression(),
+        LinearDiscriminantAnalysis(),
+        MLPClassifier(),
+        GradientBoostingClassifier() #likely to require approx. 30min of training time
     ]
 
-    df = remove_na_values(pd.read_csv('../data/data.csv'))
+    df = remove_na_values(pd.read_csv('..\data\data.csv'))
 
     results = main(models, df)
 
