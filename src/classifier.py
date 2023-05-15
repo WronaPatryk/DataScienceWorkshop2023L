@@ -2,15 +2,16 @@ import time
 
 import pandas as pd
 from pandas import DataFrame
-from sklearn.base import BaseEstimator
-from sklearn.metrics import roc_auc_score, accuracy_score, recall_score, confusion_matrix
+from sklearn.discriminant_analysis import LinearDiscriminantAnalysis
+from sklearn.ensemble import RandomForestClassifier, GradientBoostingClassifier
+from sklearn.linear_model import LogisticRegression
+from sklearn.metrics import accuracy_score, recall_score
 from sklearn.model_selection import train_test_split
 from sklearn.naive_bayes import GaussianNB, BernoulliNB, ComplementNB, MultinomialNB
 from sklearn.neighbors import KNeighborsClassifier
-from sklearn.ensemble import RandomForestClassifier, GradientBoostingClassifier, AdaBoostClassifier
-from sklearn.linear_model import LogisticRegression
 from sklearn.neural_network import MLPClassifier
-from sklearn.discriminant_analysis import LinearDiscriminantAnalysis
+from tqdm import tqdm
+
 
 def remove_na_values(df: DataFrame, drop_column_threshold=0.15):
     null_var = df.isnull().sum() / df.shape[0]
@@ -20,9 +21,9 @@ def remove_na_values(df: DataFrame, drop_column_threshold=0.15):
     return df
 
 
-def main(models: list, df: DataFrame):
+def train_models(models: list, df: DataFrame):
     results = pd.DataFrame(columns=['model', 'acc', 'tpr'])
-    for model in models:
+    for model in tqdm(models):
         x = df.iloc[:, 4:]
         y = df.iloc[:, 0]
 
@@ -37,7 +38,7 @@ def main(models: list, df: DataFrame):
         tpr = recall_score(y_test, y_pred, average='micro')
 
         results = results.append({'model': str(model), 'acc': acc, 'tpr': tpr}, ignore_index=True)
-    return results
+    return results, models
 
 
 if __name__ == '__main__':
@@ -56,6 +57,6 @@ if __name__ == '__main__':
 
     df = remove_na_values(pd.read_csv('..\data\data.csv'))
 
-    results = main(models, df)
+    results, models = train_models(models, df)
 
     results.to_csv(f'classification_results/{int(time.time())}.csv', index=False)
