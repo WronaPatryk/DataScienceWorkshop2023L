@@ -1,0 +1,2 @@
+model,acc,tpr
+RandomForestClassifier(),0.9952899617309391,0.9952899617309391
