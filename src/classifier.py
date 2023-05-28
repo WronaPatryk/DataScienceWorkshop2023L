@@ -23,12 +23,12 @@ def remove_na_values(df: DataFrame, drop_column_threshold=0.15):
 
 def train_models(models: list, df: DataFrame):
     results = pd.DataFrame(columns=['model', 'acc', 'tpr'])
+    x = df.iloc[:, 4:]
+    y = df.iloc[:, 0]
+
+    x_train, x_test, y_train, y_test = train_test_split(x, y, test_size=0.2, random_state=0)
+
     for model in tqdm(models):
-        x = df.iloc[:, 4:]
-        y = df.iloc[:, 0]
-
-        x_train, x_test, y_train, y_test = train_test_split(x, y, test_size=0.2, random_state=0)
-
         model.fit(x_train, y_train)
         # y_pred_proba = model.predict_proba(x_test)
         y_pred = model.predict(x_test)
@@ -38,7 +38,7 @@ def train_models(models: list, df: DataFrame):
         tpr = recall_score(y_test, y_pred, average='micro')
 
         results = results.append({'model': str(model), 'acc': acc, 'tpr': tpr}, ignore_index=True)
-    return results, models
+    return results, models, (x_train, x_test, y_train, y_test)
 
 
 if __name__ == '__main__':
@@ -57,6 +57,6 @@ if __name__ == '__main__':
 
     df = remove_na_values(pd.read_csv('..\data\data.csv'))
 
-    results, models = train_models(models, df)
+    results, models, _ = train_models(models, df)
 
     results.to_csv(f'classification_results/{int(time.time())}.csv', index=False)

@@ -10,7 +10,7 @@ if __name__ == '__main__':
 
     df = remove_na_values(pd.read_csv('data\data.csv'))
 
-    results, models = train_models(models, df)
+    results, models, _ = train_models(models, df)
     rf = models[0]
 
     f_i = list(zip(df.columns[4:], rf.feature_importances_))
