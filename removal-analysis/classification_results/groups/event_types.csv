@@ -1,0 +1,2 @@
+EVENT TYPE,n_columns,model,acc,tpr
+Mouse events,39,RandomForestClassifier(),0.9970562260818369,0.9970562260818369
