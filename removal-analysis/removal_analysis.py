@@ -11,7 +11,9 @@ from sklearn.naive_bayes import GaussianNB, BernoulliNB, ComplementNB, Multinomi
 from sklearn.neighbors import KNeighborsClassifier
 from sklearn.neural_network import MLPClassifier
 from tqdm import tqdm
+import random
 
+random.seed(42)
 
 def remove_na_values(df: DataFrame, drop_column_threshold=0.15):
     null_var = df.isnull().sum() / df.shape[0]
@@ -20,7 +22,7 @@ def remove_na_values(df: DataFrame, drop_column_threshold=0.15):
     df = df.dropna()
     return df
 
-def remove_columns(df: DataFrame, exclude_columns: list):
+def remove_columns_ints(df: DataFrame, exclude_columns: list):
     result = df.drop(columns=exclude_columns)
     return result
 
@@ -69,9 +71,10 @@ if __name__ == '__main__':
     for feature in tqdm(agg_features):
         df_trimmed = remove_columns(df, [feature])
 
+
         df_trimmed = remove_na_values(df_trimmed)
 
-        results, models = train_models(models, df_trimmed.iloc[:,1:12])
+        results, models = train_models(models, df_trimmed)
 
         results.to_csv(f'removal-analysis\classification_results\{int(time.time())}_{feature}.csv', index=False)
 
