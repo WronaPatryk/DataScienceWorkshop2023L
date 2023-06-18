@@ -11,6 +11,7 @@ from sklearn.naive_bayes import GaussianNB, BernoulliNB, ComplementNB, Multinomi
 from sklearn.neighbors import KNeighborsClassifier
 from sklearn.neural_network import MLPClassifier
 from tqdm import tqdm
+import numpy as np
 
 
 def remove_na_values(df: DataFrame, drop_column_threshold=0.15):
@@ -21,8 +22,21 @@ def remove_na_values(df: DataFrame, drop_column_threshold=0.15):
     return df
 
 
+def false_rejection_rate(y_true, y_pred):
+    classes, counts = np.unique(y_true, return_counts=True)
+    individual_rates = {
+        user: float(len([1 for t, p in zip(y_true, y_pred) if t == user and t != p])) / count
+        for user, count in zip(classes, counts)
+    }
+    return np.mean(list(individual_rates.values()))
+
+
+def false_acceptance_rate(y_true, y_pred):
+    return false_rejection_rate(y_pred, y_true)
+
+
 def train_models(models: list, df: DataFrame):
-    results = pd.DataFrame(columns=['model', 'acc', 'tpr'])
+    results = pd.DataFrame(columns=['model', 'acc', 'tpr', 'far', 'frr'])
     x = df.iloc[:, 4:]
     y = df.iloc[:, 0]
 
@@ -37,7 +51,10 @@ def train_models(models: list, df: DataFrame):
         acc = accuracy_score(y_test, y_pred)
         tpr = recall_score(y_test, y_pred, average='micro')
 
-        results = results.append({'model': str(model), 'acc': acc, 'tpr': tpr}, ignore_index=True)
+        far = false_acceptance_rate(y_test, y_pred)
+        frr = false_rejection_rate(y_test, y_pred)
+
+        results = results.append({'model': str(model), 'acc': acc, 'tpr': tpr, 'far': far, 'frr': frr}, ignore_index=True)
     return results, models, (x_train, x_test, y_train, y_test)
 
 
